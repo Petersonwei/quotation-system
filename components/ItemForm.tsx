@@ -18,6 +18,8 @@ export function ItemForm({ onAddItem, currencies }: ItemFormProps) {
     name: "",
     quantity: 0,
     isFixedCost: false,
+    includeTax: false,
+    taxRate: 0,
     dimensions: {
       length: { value: 0, unit: "m" },
       width: { value: 0, unit: "m" },
@@ -39,6 +41,8 @@ export function ItemForm({ onAddItem, currencies }: ItemFormProps) {
       name: "",
       quantity: 0,
       isFixedCost: false,
+      includeTax: false,
+      taxRate: 0,
       dimensions: {
         length: { value: 0, unit: "m" },
         width: { value: 0, unit: "m" },
@@ -80,6 +84,14 @@ export function ItemForm({ onAddItem, currencies }: ItemFormProps) {
           onCheckedChange={(checked) => setItem({ ...item, isFixedCost: checked })}
         />
         <Label htmlFor="isFixedCost">Fixed Cost</Label>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="includeTax"
+          checked={item.includeTax}
+          onCheckedChange={(checked) => setItem({ ...item, includeTax: checked })}
+        />
+        <Label htmlFor="includeTax">Include Tax</Label>
       </div>
       {item.isFixedCost ? (
         <div>
@@ -280,6 +292,20 @@ export function ItemForm({ onAddItem, currencies }: ItemFormProps) {
               </Select>
             </div>
           </div>
+          {item.includeTax && (
+            <div>
+              <Label htmlFor="taxRate">Tax Rate (%)</Label>
+              <Input
+                id="taxRate"
+                type="number"
+                value={item.taxRate}
+                onChange={(e) => setItem({ ...item, taxRate: Number(e.target.value) })}
+                min="0"
+                max="100"
+                step="0.01"
+              />
+            </div>
+          )}
         </>
       )}
       <div>

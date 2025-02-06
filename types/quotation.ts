@@ -13,6 +13,8 @@ export interface Item {
   name: string
   quantity: number
   isFixedCost: boolean
+  includeTax: boolean
+  taxRate: number
   dimensions?: {
     length: Dimension
     width: Dimension

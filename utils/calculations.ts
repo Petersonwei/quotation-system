@@ -36,16 +36,25 @@ export function calculateItemWeight(item: Item): number {
 }
 
 export function calculateItemCost(item: Item): number {
+  let baseCost = 0
+  
   if (item.isFixedCost) {
-    return (item.unitCost || 0) * item.quantity
+    baseCost = (item.unitCost || 0) * item.quantity
   } else {
     const weight = calculateItemWeight(item)
     if (item.pricePerWeight) {
       const pricePerKg = convertUnit(item.pricePerWeight.value, item.pricePerWeight.weightUnit, "kg", "weight")
-      return weight * pricePerKg
+      baseCost = weight * pricePerKg
     }
-    return 0
   }
+
+  // Add tax if included
+  if (item.includeTax) {
+    const taxAmount = baseCost * (item.taxRate / 100)
+    return baseCost + taxAmount
+  }
+
+  return baseCost
 }
 
 export function formatCurrency(amount: number, currency: string): string {
