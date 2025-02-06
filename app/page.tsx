@@ -197,7 +197,7 @@ export default function QuotationPage() {
             <CardTitle>Quotation Preview</CardTitle>
           </CardHeader>
           <CardContent>
-            <QuotationPreview quotation={quotationData} />
+            <QuotationPreview quotation={quotationData} rates={rates} />
           </CardContent>
         </Card>
       )}

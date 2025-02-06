@@ -8,16 +8,23 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { QuotationData } from "../types/quotation"
-import { calculateItemCost, calculateItemWeight, formatCurrency } from "../utils/calculations"
+import { calculateItemCost, calculateItemWeight, formatCurrency, convertCurrency } from "../utils/calculations"
+import { defaultCurrencyRates } from "../utils/calculations"
 
 interface QuotationPreviewProps {
   quotation: QuotationData
+  rates?: CurrencyRate[]
 }
 
-export function QuotationPreview({ quotation }: QuotationPreviewProps) {
+export function QuotationPreview({ quotation, rates = defaultCurrencyRates }: QuotationPreviewProps) {
+  const convertToDisplayCurrency = (amount: number, fromCurrency: string) => {
+    return convertCurrency(amount, fromCurrency, quotation.displayCurrency, rates)
+  }
+
   const calculateSubtotal = () => {
     return quotation.items.reduce((sum, item) => {
-      return sum + calculateItemCost(item)
+      const itemCost = calculateItemCost(item)
+      return sum + convertToDisplayCurrency(itemCost, item.currency)
     }, 0)
   }
 
@@ -60,7 +67,7 @@ export function QuotationPreview({ quotation }: QuotationPreviewProps) {
               <TableHead className="text-right">Weight</TableHead>
               <TableHead className="text-right">Unit Price</TableHead>
               <TableHead className="text-right">Tax</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-right">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,6 +77,11 @@ export function QuotationPreview({ quotation }: QuotationPreviewProps) {
               const unitPrice = item.isFixedCost 
                 ? item.unitCost || 0
                 : (item.pricePerWeight?.value || 0)
+
+              // Convert all monetary values to display currency
+              const displayUnitPrice = convertToDisplayCurrency(unitPrice, item.currency)
+              const displayTotalCost = convertToDisplayCurrency(totalCost, item.currency)
+              const displayTaxAmount = convertToDisplayCurrency(totalCost - baseCost, item.currency)
 
               return (
                 <TableRow key={item.id}>
@@ -89,15 +101,15 @@ export function QuotationPreview({ quotation }: QuotationPreviewProps) {
                     {item.isFixedCost ? "-" : `${calculateItemWeight(item).toFixed(2)} kg`}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(unitPrice, item.currency)}
+                    {formatCurrency(displayUnitPrice, quotation.displayCurrency)}
                   </TableCell>
                   <TableCell className="text-right">
                     {item.includeTax 
-                      ? `${item.taxRate}% (${formatCurrency(totalCost - baseCost, item.currency)})`
+                      ? `${item.taxRate}% (${formatCurrency(displayTaxAmount, quotation.displayCurrency)})`
                       : "-"}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(totalCost, item.currency)}
+                    {formatCurrency(displayTotalCost, quotation.displayCurrency)}
                   </TableCell>
                 </TableRow>
               )
@@ -106,7 +118,7 @@ export function QuotationPreview({ quotation }: QuotationPreviewProps) {
         </Table>
 
         {/* Totals */}
-        <div className="flex flex-col gap-2 items-end">
+        <div className="flex flex-col gap-2 items-end mt-4">
           <div className="grid grid-cols-2 gap-8">
             <div className="text-right">Subtotal:</div>
             <div className="text-right">
@@ -119,7 +131,7 @@ export function QuotationPreview({ quotation }: QuotationPreviewProps) {
                   if (!item.includeTax) return sum
                   const baseCost = calculateItemCost({ ...item, includeTax: false })
                   const totalCost = calculateItemCost(item)
-                  return sum + (totalCost - baseCost)
+                  return sum + convertToDisplayCurrency(totalCost - baseCost, item.currency)
                 }, 0),
                 quotation.displayCurrency
               )}
@@ -127,7 +139,10 @@ export function QuotationPreview({ quotation }: QuotationPreviewProps) {
             <div className="text-right font-bold">Total:</div>
             <div className="text-right font-bold">
               {formatCurrency(
-                quotation.items.reduce((sum, item) => sum + calculateItemCost(item), 0),
+                quotation.items.reduce((sum, item) => {
+                  const totalCost = calculateItemCost(item)
+                  return sum + convertToDisplayCurrency(totalCost, item.currency)
+                }, 0),
                 quotation.displayCurrency
               )}
             </div>
