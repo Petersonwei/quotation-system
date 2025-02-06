@@ -12,6 +12,7 @@ import { ItemList } from "../components/ItemList"
 import { defaultCurrencyRates, calculateItemCost, convertCurrency, formatCurrency } from "../utils/calculations"
 import { addCustomUnit } from "../utils/units"
 import type { CurrencyRate, Item, QuotationData } from "../types/quotation"
+import { QuotationPreview } from "../components/QuotationPreview"
 
 export default function QuotationPage() {
   const [rates, setRates] = useState<CurrencyRate[]>(defaultCurrencyRates)
@@ -47,6 +48,13 @@ export default function QuotationPage() {
     const itemCost = calculateItemCost(item)
     return sum + convertCurrency(itemCost, item.currency, displayCurrency, rates)
   }, 0)
+
+  const quotationData: QuotationData = {
+    customer,
+    items,
+    baseCurrency,
+    displayCurrency,
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-8">
@@ -182,6 +190,17 @@ export default function QuotationPage() {
           <Button onClick={() => console.log(generateQuotation())}>Generate Quotation</Button>
         </CardContent>
       </Card>
+
+      {items.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Quotation Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuotationPreview quotation={quotationData} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
