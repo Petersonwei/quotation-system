@@ -1,5 +1,5 @@
 import type { CurrencyRate, Item } from "../types/quotation"
-import { convertUnit } from "./units"
+import { convertUnit, convertWeight } from "./units"
 
 export const defaultCurrencyRates: CurrencyRate[] = [
   { code: "USD", name: "US Dollar", rate: 1 },
@@ -32,7 +32,10 @@ export function calculateItemWeight(item: Item): number {
     "weightPerArea",
   )
 
-  return length * width * weightPerArea * item.quantity
+  const weightInKg = length * width * weightPerArea * item.quantity
+  
+  // Convert to the desired display unit
+  return convertWeight(weightInKg, "kg", item.pricePerWeight?.weightUnit || "kg")
 }
 
 export function calculateItemCost(item: Item): number {

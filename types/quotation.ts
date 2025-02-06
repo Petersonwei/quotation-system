@@ -1,6 +1,9 @@
+export type WeightUnit = "g" | "kg" | "ton" | "metric-ton"
+
 export interface Unit {
   name: string
   conversionFactor: number // conversion factor to base unit (m for length, kg for weight)
+  type: "length" | "weight" | "weightPerArea"
 }
 
 export interface Dimension {

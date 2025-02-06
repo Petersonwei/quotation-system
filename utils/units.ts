@@ -12,11 +12,18 @@ export const lengthUnits: Unit[] = [
 ]
 
 export const weightUnits: Unit[] = [
-  { name: "kg", conversionFactor: 1 },
-  { name: "g", conversionFactor: 0.001 },
-  { name: "lb", conversionFactor: 0.453592 },
-  { name: "oz", conversionFactor: 0.0283495 },
+  { name: "g", conversionFactor: 0.001 },      // 1g = 0.001kg
+  { name: "kg", conversionFactor: 1 },         // base unit
+  { name: "ton", conversionFactor: 1000 },     // 1 ton = 1000kg
+  { name: "metric-ton", conversionFactor: 1000 }  // 1 metric ton = 1000kg
 ]
+
+export const weightUnitLabels: Record<string, string> = {
+  "g": "Grams (g)",
+  "kg": "Kilograms (kg)",
+  "ton": "Tons (噸)",
+  "metric-ton": "Metric Tons (公噸)"
+}
 
 export const weightPerAreaUnits: Unit[] = [
   { name: "kg/m²", conversionFactor: 1 },
@@ -61,6 +68,13 @@ export function convertUnit(
   unitType: "length" | "weight" | "weightPerArea",
 ): number {
   const units = getAllUnits(unitType)
+  const fromUnitFactor = units.find((u) => u.name === fromUnit)?.conversionFactor || 1
+  const toUnitFactor = units.find((u) => u.name === toUnit)?.conversionFactor || 1
+  return value * (fromUnitFactor / toUnitFactor)
+}
+
+export function convertWeight(value: number, fromUnit: string, toUnit: string): number {
+  const units = weightUnits
   const fromUnitFactor = units.find((u) => u.name === fromUnit)?.conversionFactor || 1
   const toUnitFactor = units.find((u) => u.name === toUnit)?.conversionFactor || 1
   return value * (fromUnitFactor / toUnitFactor)

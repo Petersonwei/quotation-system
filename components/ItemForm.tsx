@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import type { Item } from "../types/quotation"
 import { getAllUnits } from "../utils/units"
+import { weightUnitLabels } from "../utils/units"
 
 interface ItemFormProps {
   onAddItem: (item: Item) => void
@@ -256,16 +257,22 @@ export function ItemForm({ onAddItem, currencies }: ItemFormProps) {
               <Select
                 value={item.pricePerWeight?.weightUnit || "kg"}
                 onValueChange={(value) =>
-                  setItem({ ...item, pricePerWeight: { ...item.pricePerWeight!, weightUnit: value } })
+                  setItem({
+                    ...item,
+                    pricePerWeight: {
+                      ...item.pricePerWeight!,
+                      weightUnit: value,
+                    },
+                  })
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select unit" />
+                  <SelectValue placeholder="Select weight unit" />
                 </SelectTrigger>
                 <SelectContent>
-                  {weightUnits.map((unit) => (
-                    <SelectItem key={unit.name} value={unit.name}>
-                      {unit.name}
+                  {Object.entries(weightUnitLabels).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
                     </SelectItem>
                   ))}
                 </SelectContent>
